@@ -1,34 +1,25 @@
 <template>
     <div class="wrapper">
-        <div class="authFailMsg" hidden="true"></div>
-        <form id="auth" method="post">
+        <div class="authFailMsg" v-if="user.connectionState.authFailMsgShow">{{ user.connectionState.authFailMsg }}</div>
+        <form id="auth" method="post" v-if="user.connectionState.notLogin">
             <input type="text" id="id" name="id" placeholder="email@email.com" v-model="user.id">
             <input type="password" id="pwd" name="pwd" placeholder="password" v-model="user.pwd">
             <input type="submit" id="loginBtn" value="login" v-on:click="validateUser">
         </form>
-        <div id="userNav" hidden="true">
-            <p id="userNickname"></p>
+        <div id="userNav" v-if="!user.connectionState.notLogin">
+            <p id="userNickname" v-if="!user.connectionState.notLogin"> {{ user.nickname + ' 님' }}</p>
             <button id="logoutBtn">logout</button>
         </div>
         <div class="notepad">
             <ul class="menu">
-                <li>
-                    <button class="writeBtn" v-on:click="createNewMemo">새 메모</button>
-                </li>
-                <li>
-                    <button class="saveBtn" v-on:click="saveMemo">저장</button>
-                </li>
-                <li>
-                    <button class="updateBtn">수정 완료</button>
-                </li>
-                <li>
-                    <button class="deleteBtn">삭제</button>
-                </li>
+                <li><button class="writeBtn">새 메모</button></li>
+                <li><button class="saveBtn">저장</button></li>
+                <li><button class="updateBtn">수정 완료</button></li>
+                <li><button class="deleteBtn">삭제</button></li>
             </ul>
-            <ul class="list">
-
-            </ul>
+            <ul class="list" v-for="item of list"></ul>
             <textarea class="memo" name="memo" id="memo" cols="30" rows="10" placeholder="새 메모를 작성하세요!"
+                      ref="memo"
                       v-model="memo.content"
                       v-on:keypress="findCursor"></textarea>
         </div>
@@ -44,14 +35,22 @@
         data() {
             return {
                 user: {
+                    connectionState: {
+                        notLogin: true,
+                        authFailMsg: '',
+                        authFailMsgShow: false
+                    },
                     id: '',
-                    pwd: ''
+                    nickname: '',
+                    pwd: '',
+                    currentFile: ''
                 },
                 memo: {
                     content: '',
                     cursorStart: 0,
                     cursorEnd: 0
-                }
+                },
+                list: []
             }
         },
         methods: {
@@ -66,22 +65,34 @@
                     headers: myHeaders,
                     body: JSON.stringify({id: this.user.id, pwd: this.user.pwd})
                 }).then((res) => res.json()).then((data) => {
-                    // 8080, 8081 서로 다른 포트로 통신하고 있어서 network 보면 login이  두번 감, session 정보를 계속 새로 만들어서 전에 있던 사용자인지 인지 못함
-                    console.log('session 객체', data);
+                    if (!data['body'] || !data['body'].isLogin) {
+                        this.user.connectionState.authFailMsgShow = true;
+                        this.user.connectionState.authFailMsg = data['body'];
+                        return;
+                    }
+
+                    if (!data['lastwork']) {
+                        this.user.currentFile = '';
+                        this.memo.content = '';
+                    } else {
+                        this.user.currentFile = data['lastwork'].title;
+                        this.memo.content = data['lastwork'].content;
+                        this.memo.cursorStart = data['lastwork'].cursorStart;
+                        this.memo.cursorEnd = data['lastwork'].cursorEnd;
+                        this.$refs.memo.setSelectionRange(this.memo.cursorStart, this.memo.cursorEnd);
+                        this.$refs.memo.focus();
+                        this.user.nickname = data['body'].nickname;
+                        this.showList();
+                        this.user.connectionState.authFailMsgShow = false;
+                        this.user.connectionState.notLogin = false;
+                    }
                 })
             },
             findCursor(e) {
                 this.memo.cursorStart = e.target.selectionStart;
                 this.memo.cursorEnd = e.target.selectionEnd;
-                console.log('cursor', this.memo.cursorStart);
             },
-            createNewMemo(e) {
-                e.memo = '';
-            },
-            saveMemo(e) {
-                const myHeaders = new Headers();
-                myHeaders.append("Content-Type", "application/json");
-            }
+            showList() {}
         }
     }
 </script>
