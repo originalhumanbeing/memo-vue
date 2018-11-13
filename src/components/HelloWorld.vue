@@ -1,14 +1,14 @@
 <template>
     <div class="wrapper">
         <div class="authFailMsg" v-if="user.connectionState.authFailMsgShow">{{ user.connectionState.authFailMsg }}</div>
-        <form id="auth" method="post" v-if="user.connectionState.notLogin">
+        <form id="auth" method="post" v-if="user.connectionState.beforeLogin">
             <input type="text" id="id" name="id" placeholder="email@email.com" v-model="user.id">
             <input type="password" id="pwd" name="pwd" placeholder="password" v-model="user.pwd">
-            <input type="submit" id="loginBtn" value="login" v-on:click="validateUser">
+            <input type="submit" id="loginBtn" value="login" v-on:click="login">
         </form>
-        <div id="userNav" v-if="!user.connectionState.notLogin">
-            <p id="userNickname" v-if="!user.connectionState.notLogin"> {{ user.nickname + ' 님' }}</p>
-            <button id="logoutBtn">logout</button>
+        <div id="userNav" v-if="!user.connectionState.beforeLogin">
+            <p id="userNickname" v-if="!user.connectionState.beforeLogin"> {{ user.nickname + ' 님' }}</p>
+            <button id="logoutBtn" v-on:click="logout">logout</button>
         </div>
         <div class="notepad">
             <ul class="menu">
@@ -36,7 +36,7 @@
             return {
                 user: {
                     connectionState: {
-                        notLogin: true,
+                        beforeLogin: true,
                         authFailMsg: '',
                         authFailMsgShow: false
                     },
@@ -54,7 +54,7 @@
             }
         },
         methods: {
-            validateUser(e) {
+            login(e) {
                 e.preventDefault();
 
                 const myHeaders = new Headers();
@@ -84,9 +84,17 @@
                         this.user.nickname = data['body'].nickname;
                         this.showList();
                         this.user.connectionState.authFailMsgShow = false;
-                        this.user.connectionState.notLogin = false;
+                        this.user.connectionState.beforeLogin = false;
                     }
                 })
+            },
+            logout() {
+                this.user.id = '';
+                this.user.pwd = '';
+                this.user.nickname = '';
+                this.user.connectionState.beforeLogin = true;
+                this.user.currentFile = '';
+                this.memo.content = '';
             },
             findCursor(e) {
                 this.memo.cursorStart = e.target.selectionStart;
