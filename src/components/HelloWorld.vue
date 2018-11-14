@@ -12,13 +12,13 @@
         </div>
         <div class="notepad">
             <ul class="menu">
-                <li><button class="writeBtn">새 메모</button></li>
-                <li><button class="saveBtn">저장</button></li>
-                <li><button class="updateBtn">수정 완료</button></li>
-                <li><button class="deleteBtn">삭제</button></li>
+                <li><button class="writeBtn" v-on:click="createMemo">새 메모</button></li>
+                <li><button class="saveBtn" v-on:click="saveMemo">저장</button></li>
+                <li><button class="updateBtn" v-on:click="updateMemo">수정 완료</button></li>
+                <li><button class="deleteBtn" v-on:click="deleteMemo">삭제</button></li>
             </ul>
             <ul class="list">
-                <li  v-for="item in list" v-on:click="showMemo">{{ item }}</li>
+                <li  v-for="item in list" v-on:click="showMemo" v-bind:class="{ clicked: user.currentFile === item }">{{ item }}</li>
             </ul>
             <textarea class="memo" name="memo" id="memo" cols="30" rows="10" placeholder="새 메모를 작성하세요!"
                       ref="memo"
@@ -98,17 +98,12 @@
                 this.user.currentFile = '';
                 this.memo.content = '';
             },
-            findCursor(e) {
-                this.memo.cursorStart = e.target.selectionStart;
-                this.memo.cursorEnd = e.target.selectionEnd;
-            },
             showList() {
                 fetch(`http://localhost:8080/memos/${this.user.nickname}`, {
                     method: 'get'
                 }).then((res) => res.json()).then((data) => {
                     if (!data['body'] || data['body'].length === 0) return;
 
-                    this.memo.content = '';
                     data['body'].sort((a, b) => a - b);
                     this.list = data['body'];
                 })
@@ -123,6 +118,64 @@
                     this.memo.cursorEnd = data['body'].cursorEnd;
                     this.$refs.memo.setSelectionRange(this.memo.cursorStart, this.memo.cursor);
                     this.$refs.memo.focus();
+                })
+            },
+            createMemo() {
+                this.memo.content = '';
+                this.memo.cursorStart = '';
+                this.memo.cursorEnd = '';
+                this.$refs.memo.focus();
+            },
+            findCursor(e) {
+                this.memo.cursorStart = e.target.selectionStart;
+                this.memo.cursorEnd = e.target.selectionEnd;
+            },
+            saveMemo() {
+                const myHeaders = new Headers();
+                myHeaders.append("Content-Type", "application/json");
+
+                fetch(`http://localhost:8080/memo/${this.user.nickname}`, {
+                    method: 'post',
+                    headers: myHeaders,
+                    body: JSON.stringify({
+                        memo: this.memo.content,
+                        user: this.user.nickname,
+                        cursorStart: this.memo.cursorStart,
+                        cursorEnd: this.memo.cursorEnd
+                    })
+                }).then(res => res.json()).then(data => {
+                    this.user.currentFile = data.body.title;
+                    this.memo.content = data.body.content;
+                    this.showList();
+                })
+            },
+            updateMemo() {
+                const myHeaders = new Headers();
+                myHeaders.append("Content-Type", "application/json");
+
+                fetch(`http://localhost:8080/memo/${this.user.nickname}/${this.user.currentFile}`, {
+                    method: 'put',
+                    headers: myHeaders,
+                    body: JSON.stringify({
+                        memo: this.memo.content,
+                        user: this.user.nickname,
+                        cursorStart: this.memo.cursorStart,
+                        cursorEnd: this.memo.cursorEnd
+                    })
+                }).then(res => res.json()).then(data => {
+                    this.user.currentFile = data.body.title;
+                    this.memo.content = data.body.content;
+                    this.showList();
+                })
+            },
+            deleteMemo() {
+                fetch(`http://localhost:8080/memo/${this.user.nickname}/${this.user.currentFile}`, {
+                    method:'delete'
+                }).then(res => res.json()).then(data => {
+                    window.alert(data.body);
+                }).then(() => {
+                    this.showList();
+                    this.memo.content = '';
                 })
             }
         }
@@ -161,11 +214,12 @@
         left: 0;
         padding: 8px;
         width: 250px;
-        min-height: 500px;
+        height: 500px;
         background-color: #ffffff;
         border-left: 1px solid silver;
         border-bottom: 1px solid silver;;
         border-bottom-left-radius: 3px;
+        overflow: scroll;
     }
 
     .list li {
@@ -174,6 +228,11 @@
         border-bottom: 1px solid silver;
         padding: 3px;
         margin: 3px;
+    }
+
+    .list .clicked {
+        font-weight: 600;
+        color: seagreen;
     }
 
     .memo {
