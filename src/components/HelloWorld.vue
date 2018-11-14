@@ -17,7 +17,9 @@
                 <li><button class="updateBtn">수정 완료</button></li>
                 <li><button class="deleteBtn">삭제</button></li>
             </ul>
-            <ul class="list" v-for="item of list"></ul>
+            <ul class="list">
+                <li  v-for="item in list" v-on:click="showMemo">{{ item }}</li>
+            </ul>
             <textarea class="memo" name="memo" id="memo" cols="30" rows="10" placeholder="새 메모를 작성하세요!"
                       ref="memo"
                       v-model="memo.content"
@@ -100,7 +102,29 @@
                 this.memo.cursorStart = e.target.selectionStart;
                 this.memo.cursorEnd = e.target.selectionEnd;
             },
-            showList() {}
+            showList() {
+                fetch(`http://localhost:8080/memos/${this.user.nickname}`, {
+                    method: 'get'
+                }).then((res) => res.json()).then((data) => {
+                    if (!data['body'] || data['body'].length === 0) return;
+
+                    this.memo.content = '';
+                    data['body'].sort((a, b) => a - b);
+                    this.list = data['body'];
+                })
+            },
+            showMemo(e) {
+                this.user.currentFile = e.target.innerText;
+                fetch(`http://localhost:8080/memo/${this.user.nickname}/${this.user.currentFile}`, {
+                    method: 'get'
+                }).then((res) => res.json()).then((data) => {
+                    this.memo.content = data['body'].content;
+                    this.memo.cursorStart = data['body'].cursorStart;
+                    this.memo.cursorEnd = data['body'].cursorEnd;
+                    this.$refs.memo.setSelectionRange(this.memo.cursorStart, this.memo.cursor);
+                    this.$refs.memo.focus();
+                })
+            }
         }
     }
 </script>
