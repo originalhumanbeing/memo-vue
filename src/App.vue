@@ -1,26 +1,29 @@
 <template>
-  <div id="app">
-    <HelloWorld msg="현정이의 세상!"/>
-  </div>
+    <div id="app">
+        <Auth></Auth>
+        <!--<Notepad></Notepad>-->
+    </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+    import Auth from './components/Auth.vue';
+    // import Notepad from './components/Notepad.vue';
 
-export default {
-  name: 'app',
-  components: {
-    HelloWorld
-  }
-}
+    export default {
+        name: 'app',
+        components: {
+            // Auth, Notepad
+            Auth
+        }
+    }
 </script>
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+    #app {
+        font-family: 'Avenir', Helvetica, Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        color: #2c3e50;
+        margin-top: 60px;
+    }
 </style>
