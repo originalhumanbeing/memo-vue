@@ -1,8 +1,8 @@
 <template>
     <textarea class="memo" name="memo" id="memo" cols="30" rows="10" placeholder="새 메모를 작성하세요!"
               ref="memo"
-              v-model="content">
-              <!--v-on:keypress="findCursor">-->
+              v-model="content"
+              v-on:keypress="findCursor">
     </textarea>
 </template>
 
@@ -18,15 +18,16 @@
             }
         },
         methods: {
+            findCursor() {},
             // showMemo(userInfo) {
             //     alert(userInfo);
             // }
         },
-        mounted() {
+        updated() {
             // this.$bus.on('show-memo', (userInfo) => {
             //     return this.showMemo(userInfo)
             // })
-            this.$bus.on('show-memo', console.log('hello'))
+            this.$bus.$on('show-memo', console.log('hello'))
         }
     }
 </script>

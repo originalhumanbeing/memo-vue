@@ -1,19 +1,19 @@
 <template>
     <div id="app">
         <Auth></Auth>
-        <!--<Notepad></Notepad>-->
+        <Notepad></Notepad>
     </div>
 </template>
 
 <script>
     import Auth from './components/Auth.vue';
-    // import Notepad from './components/Notepad.vue';
+    import Notepad from './components/Notepad.vue';
 
     export default {
         name: 'app',
         components: {
-            // Auth, Notepad
-            Auth
+            Auth, Notepad
+            // Auth
         }
     }
 </script>

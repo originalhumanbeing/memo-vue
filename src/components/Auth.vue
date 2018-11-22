@@ -38,22 +38,24 @@
                 const myHeaders = new Headers();
                 myHeaders.append("Content-Type", "application/json");
 
-                fetch(`http://localhost:8080/login`, {
+                fetch(`http://localhost:5000/login`, {
                     method: 'post',
                     headers: myHeaders,
                     body: JSON.stringify({id: this.user.id, pwd: this.user.pwd})
                 }).then(res => res.json()).then(userInfo => {
-                    console.log(userInfo);
                     if (!userInfo['body'] || !userInfo['body'].isLogin) {
                         this.authState.authSuccess = false;
                         this.authState.authFailMsg = userInfo['body'];
                         return;
                     }
-
-                    this.$bus.emit('show-memo', userInfo);
+                    this.$bus.$emit('show-memo', userInfo);
                     // textarea 작업 내용 채우는 것을 호출하는 이벤트 버스
-                    this.$bus.emit('show-list', userInfo);
+                    // this.$emit('show-list', userInfo);
                     // showlist 호출하는 이벤트 버스
+                    console.log(userInfo);
+                    this.user.nickname = userInfo['body'].nickname;
+                    this.authState.authSuccess = true;
+                    this.authState.beforeLogin = false;
 
                     // // if (!userInfo['lastwork']) {
                     // //     this.user.currentFile = '';
@@ -78,7 +80,7 @@
                 this.user.nickname = '';
                 this.authState.beforeLogin = true;
 
-                this.$bus.emit('empty-memo');
+                this.$emit('empty-memo');
                 // textarea 내용 비우는 이벤트 호출하는 버스
                 // this.user.currentFile = '';
                 // this.memo.content = '';

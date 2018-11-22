@@ -1,7 +1,5 @@
 <template>
-    <Notepad>
-        <Textarea></Textarea>
-    </Notepad>
+    <Textarea></Textarea>
     <!--<Menu></Menu>-->
     <!--<List></List>-->
 </template>
