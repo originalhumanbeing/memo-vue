@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <Notepad></Notepad>
+        <router-view/>
     </div>
 </template>
 
