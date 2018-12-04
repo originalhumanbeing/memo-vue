@@ -91,8 +91,21 @@ form div {
     font-size: 11px;
     font-weight: 500;
     letter-spacing: 0.05em;
-    line-hegiht: 16px;
     color: rgba(55, 53, 47, 0.8);
+}
+
+form > div {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: rgba(235, 86, 86);
+    text-align: center;
+    position: absolute;
+    top: 20px;
+    padding: 10px;
+    width: 320px;
+    background-color: rgba(235, 86, 86, 0.06);
+    border: 1px solid rgba(235, 86, 86);
+    border-radius: 3px;
 }
 
 form input {
