@@ -4,11 +4,12 @@
         <form id="auth" method="post" v-if="user.connectionState.beforeLogin">
             <input type="text" id="id" name="id" placeholder="email@email.com" v-model="user.id">
             <input type="password" id="pwd" name="pwd" placeholder="password" v-model="user.pwd">
-            <input type="submit" id="loginBtn" value="login" v-on:click="login">
+            <input type="submit" id="loginBtn" value="Log in" v-on:click="login">
+            <router-link to="/signup">Sign Up</router-link>
         </form>
         <div id="userNav" v-if="!user.connectionState.beforeLogin">
             <p id="userNickname" v-if="!user.connectionState.beforeLogin"> {{ user.nickname + ' 님' }}</p>
-            <button id="logoutBtn" v-on:click="logout">logout</button>
+            <button id="logoutBtn" v-on:click="logout">Log out</button>
         </div>
         <div class="notepad">
             <ul class="menu">
@@ -29,157 +30,157 @@
 </template>
 
 <script>
-    export default {
-        name: 'Notepad',
-        props: {
-            msg: String
-        },
-        data() {
-            return {
-                user: {
-                    connectionState: {
-                        beforeLogin: true,
-                        authFailMsg: '',
-                        authFailMsgShow: false
-                    },
-                    id: '',
-                    nickname: '',
-                    pwd: '',
-                    currentFile: ''
+export default {
+    name: 'Notepad',
+    props: {
+        msg: String
+    },
+    data() {
+        return {
+            user: {
+                connectionState: {
+                    beforeLogin: true,
+                    authFailMsg: '',
+                    authFailMsgShow: false
                 },
-                memo: {
-                    content: '',
-                    cursorStart: 0,
-                    cursorEnd: 0
-                },
-                list: []
-            }
-        },
-        methods: {
-            login(e) {
-                e.preventDefault();
+                id: '',
+                nickname: '',
+                pwd: '',
+                currentFile: ''
+            },
+            memo: {
+                content: '',
+                cursorStart: 0,
+                cursorEnd: 0
+            },
+            list: []
+        }
+    },
+    methods: {
+        login(e) {
+            e.preventDefault();
 
-                const myHeaders = new Headers();
-                myHeaders.append("Content-Type", "application/json");
+            const myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
 
-                fetch(`http://localhost:8080/login`, {
-                    method: 'post',
-                    headers: myHeaders,
-                    body: JSON.stringify({id: this.user.id, pwd: this.user.pwd})
-                }).then((res) => res.json()).then((data) => {
-                    if (!data['body'] || !data['body'].isLogin) {
-                        this.user.connectionState.authFailMsgShow = true;
-                        this.user.connectionState.authFailMsg = data['body'];
-                        return;
-                    }
+            fetch(`http://localhost:8080/login`, {
+                method: 'post',
+                headers: myHeaders,
+                body: JSON.stringify({id: this.user.id, pwd: this.user.pwd})
+            }).then((res) => res.json()).then((data) => {
+                if (!data['body'] || !data['body'].isLogin) {
+                    this.user.connectionState.authFailMsgShow = true;
+                    this.user.connectionState.authFailMsg = data['body'];
+                    return;
+                }
 
-                    if (!data['lastwork']) {
-                        this.user.currentFile = '';
-                        this.memo.content = '';
-                    } else {
-                        this.user.currentFile = data['lastwork'].title;
-                        this.memo.content = data['lastwork'].content;
-                        this.memo.cursorStart = data['lastwork'].cursorStart;
-                        this.memo.cursorEnd = data['lastwork'].cursorEnd;
-                        this.$refs.memo.setSelectionRange(this.memo.cursorStart, this.memo.cursorEnd);
-                        this.$refs.memo.focus();
-                        this.user.nickname = data['body'].nickname;
-                        this.showList();
-                        this.user.connectionState.authFailMsgShow = false;
-                        this.user.connectionState.beforeLogin = false;
-                    }
-                })
-            },
-            logout() {
-                this.user.id = '';
-                this.user.pwd = '';
-                this.user.nickname = '';
-                this.user.connectionState.beforeLogin = true;
-                this.user.currentFile = '';
-                this.memo.content = '';
-            },
-            showList() {
-                fetch(`http://localhost:8080/memos/${this.user.nickname}`, {
-                    method: 'get'
-                }).then((res) => res.json()).then((data) => {
-                    if (!data['body'] || data['body'].length === 0) return;
-
-                    data['body'].sort((a, b) => a - b);
-                    this.list = data['body'];
-                })
-            },
-            showMemo(e) {
-                this.user.currentFile = e.target.innerText;
-                fetch(`http://localhost:8080/memo/${this.user.nickname}/${this.user.currentFile}`, {
-                    method: 'get'
-                }).then((res) => res.json()).then((data) => {
-                    this.memo.content = data['body'].content;
-                    this.memo.cursorStart = data['body'].cursorStart;
-                    this.memo.cursorEnd = data['body'].cursorEnd;
-                    this.$refs.memo.setSelectionRange(this.memo.cursorStart, this.memo.cursor);
-                    this.$refs.memo.focus();
-                })
-            },
-            createMemo() {
-                this.memo.content = '';
-                this.memo.cursorStart = '';
-                this.memo.cursorEnd = '';
-                this.$refs.memo.focus();
-            },
-            findCursor(e) {
-                this.memo.cursorStart = e.target.selectionStart;
-                this.memo.cursorEnd = e.target.selectionEnd;
-            },
-            saveMemo() {
-                const myHeaders = new Headers();
-                myHeaders.append("Content-Type", "application/json");
-
-                fetch(`http://localhost:8080/memo/${this.user.nickname}`, {
-                    method: 'post',
-                    headers: myHeaders,
-                    body: JSON.stringify({
-                        memo: this.memo.content,
-                        user: this.user.nickname,
-                        cursorStart: this.memo.cursorStart,
-                        cursorEnd: this.memo.cursorEnd
-                    })
-                }).then(res => res.json()).then(data => {
-                    this.user.currentFile = data.body.title;
-                    this.memo.content = data.body.content;
-                    this.showList();
-                })
-            },
-            updateMemo() {
-                const myHeaders = new Headers();
-                myHeaders.append("Content-Type", "application/json");
-
-                fetch(`http://localhost:8080/memo/${this.user.nickname}/${this.user.currentFile}`, {
-                    method: 'put',
-                    headers: myHeaders,
-                    body: JSON.stringify({
-                        memo: this.memo.content,
-                        user: this.user.nickname,
-                        cursorStart: this.memo.cursorStart,
-                        cursorEnd: this.memo.cursorEnd
-                    })
-                }).then(res => res.json()).then(data => {
-                    this.user.currentFile = data.body.title;
-                    this.memo.content = data.body.content;
-                    this.showList();
-                })
-            },
-            deleteMemo() {
-                fetch(`http://localhost:8080/memo/${this.user.nickname}/${this.user.currentFile}`, {
-                    method:'delete'
-                }).then(res => res.json()).then(data => {
-                    window.alert(data.body);
-                }).then(() => {
-                    this.showList();
+                if (!data['lastwork']) {
+                    this.user.currentFile = '';
                     this.memo.content = '';
+                } else {
+                    this.user.currentFile = data['lastwork'].title;
+                    this.memo.content = data['lastwork'].content;
+                    this.memo.cursorStart = data['lastwork'].cursorStart;
+                    this.memo.cursorEnd = data['lastwork'].cursorEnd;
+                    this.$refs.memo.setSelectionRange(this.memo.cursorStart, this.memo.cursorEnd);
+                    this.$refs.memo.focus();
+                    this.user.nickname = data['body'].nickname;
+                    this.showList();
+                    this.user.connectionState.authFailMsgShow = false;
+                    this.user.connectionState.beforeLogin = false;
+                }
+            })
+        },
+        logout() {
+            this.user.id = '';
+            this.user.pwd = '';
+            this.user.nickname = '';
+            this.user.connectionState.beforeLogin = true;
+            this.user.currentFile = '';
+            this.memo.content = '';
+        },
+        showList() {
+            fetch(`http://localhost:8080/memos/${this.user.nickname}`, {
+                method: 'get'
+            }).then((res) => res.json()).then((data) => {
+                if (!data['body'] || data['body'].length === 0) return;
+
+                data['body'].sort((a, b) => a - b);
+                this.list = data['body'];
+            })
+        },
+        showMemo(e) {
+            this.user.currentFile = e.target.innerText;
+            fetch(`http://localhost:8080/memo/${this.user.nickname}/${this.user.currentFile}`, {
+                method: 'get'
+            }).then((res) => res.json()).then((data) => {
+                this.memo.content = data['body'].content;
+                this.memo.cursorStart = data['body'].cursorStart;
+                this.memo.cursorEnd = data['body'].cursorEnd;
+                this.$refs.memo.setSelectionRange(this.memo.cursorStart, this.memo.cursor);
+                this.$refs.memo.focus();
+            })
+        },
+        createMemo() {
+            this.memo.content = '';
+            this.memo.cursorStart = '';
+            this.memo.cursorEnd = '';
+            this.$refs.memo.focus();
+        },
+        findCursor(e) {
+            this.memo.cursorStart = e.target.selectionStart;
+            this.memo.cursorEnd = e.target.selectionEnd;
+        },
+        saveMemo() {
+            const myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            fetch(`http://localhost:8080/memo/${this.user.nickname}`, {
+                method: 'post',
+                headers: myHeaders,
+                body: JSON.stringify({
+                    memo: this.memo.content,
+                    user: this.user.nickname,
+                    cursorStart: this.memo.cursorStart,
+                    cursorEnd: this.memo.cursorEnd
                 })
-            }
+            }).then(res => res.json()).then(data => {
+                this.user.currentFile = data.body.title;
+                this.memo.content = data.body.content;
+                this.showList();
+            })
+        },
+        updateMemo() {
+            const myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            fetch(`http://localhost:8080/memo/${this.user.nickname}/${this.user.currentFile}`, {
+                method: 'put',
+                headers: myHeaders,
+                body: JSON.stringify({
+                    memo: this.memo.content,
+                    user: this.user.nickname,
+                    cursorStart: this.memo.cursorStart,
+                    cursorEnd: this.memo.cursorEnd
+                })
+            }).then(res => res.json()).then(data => {
+                this.user.currentFile = data.body.title;
+                this.memo.content = data.body.content;
+                this.showList();
+            })
+        },
+        deleteMemo() {
+            fetch(`http://localhost:8080/memo/${this.user.nickname}/${this.user.currentFile}`, {
+                method:'delete'
+            }).then(res => res.json()).then(data => {
+                window.alert(data.body);
+            }).then(() => {
+                this.showList();
+                this.memo.content = '';
+            })
         }
     }
+}
 </script>
 
 <style scoped>
