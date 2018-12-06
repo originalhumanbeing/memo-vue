@@ -46,6 +46,7 @@ export default {
                 id: '',
                 nickname: '',
                 pwd: '',
+                token: '',
                 currentFile: ''
             },
             memo: {
@@ -56,9 +57,13 @@ export default {
             list: []
         }
     },
+    // mounted() {
+    //     this.$bus.$on('login', this.login);
+    // },
     methods: {
         login(e) {
             e.preventDefault();
+            // console.log('event 로 실행되었어!');
 
             const myHeaders = new Headers();
             myHeaders.append("Content-Type", "application/json");
@@ -81,14 +86,16 @@ export default {
                     this.user.currentFile = data['lastwork'].title;
                     this.memo.content = data['lastwork'].content;
                     this.memo.cursorStart = data['lastwork'].cursorStart;
-                    this.memo.cursorEnd = data['lastwork'].cursorEnd;
-                    this.$refs.memo.setSelectionRange(this.memo.cursorStart, this.memo.cursorEnd);
-                    this.$refs.memo.focus();
-                    this.user.nickname = data['body'].nickname;
-                    this.showList();
-                    this.user.connectionState.authFailMsgShow = false;
-                    this.user.connectionState.beforeLogin = false;
+                    this.memo.cursorEnd = data['lastwork'].cursorEnd; 
                 }
+
+                this.$refs.memo.setSelectionRange(this.memo.cursorStart, this.memo.cursorEnd);
+                this.$refs.memo.focus();
+                this.user.nickname = data['body'].nickname;
+                this.user.token = data['encodedToken'];
+                this.showList();
+                this.user.connectionState.authFailMsgShow = false;
+                this.user.connectionState.beforeLogin = false;
             })
         },
         logout() {
@@ -233,7 +240,7 @@ ul, li {
 
 .list .clicked {
     font-weight: 600;
-    color: seagreen;
+    color: rgba(235, 86, 86);
 }
 
 .memo {
@@ -258,16 +265,17 @@ ul, li {
     left: 0;
     width: 900px;
     padding: 8px 0 8px 8px;
-    background-color: darkseagreen;
+    background-color: rgba(235, 86, 86);
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
 }
 
-button {
+button, a {
     padding: 5px 8px;
     margin: 3px;
     font-size: 0.9em;
     font-weight: 400;
+    text-decoration: none;
     border-radius: 5px;
     border: 1px solid #f6f8fa;
     background-color: #ffffff;

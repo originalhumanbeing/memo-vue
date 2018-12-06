@@ -9,10 +9,16 @@
                 <div>PASSWORD AGAIN</div><input type="password" name="checkpwd" placeholder="Enter your password once more" v-model="checkpwd">
                 <input type="submit" value="Sign me up!" v-on:click="signup">
         </fieldset>
+        <div id="modal" v-if="signupSuccessMsgShow">
+            {{ signupSuccessMsg }}
+            <button v-on:click="redirectToMain">확인</button>
+        </div>
     </form>
 </template>
 
 <script>
+import router from '../router/index';
+
 export default {
     name: 'Signup',
     data() {
@@ -22,7 +28,9 @@ export default {
             pwd: '',
             checkpwd: '',
             signupMsg: '',
-            signupMsgShow: false
+            signupMsgShow: false,
+            signupSuccessMsg: '회원 가입이 완료되었습니다',
+            signupSuccessMsgShow: false
         }
     },
     methods: {
@@ -43,8 +51,18 @@ export default {
                     return;
                 }
 
-                window.alert(data.body);
+                // 성공시 메인 페이지로 이동
+                this.signupSuccessMsgShow = true;
+
+                // 자동 로그인 (로그인하는 event emit)
+                // id, pwd
+                // const loginInfo = [this.email, this.pwd];
+                // this.$bus.emit('login', loginInfo);
             })
+        },
+        redirectToMain(e) {
+            e.preventDefault();
+            router.push({ name: 'Memomemo' });
         }
     }
 }  
@@ -64,13 +82,15 @@ form {
     width: 310px;
     height: 100%;
     margin: 50px auto;
+    position: relative;
+    top: 0;
+    left: 0;
 }
 
 form * {
     width: 310px; 
     display: flex; 
     flex-direction: column; 
-    max-width: 100%;
     margin: 10px 0;
 }
 
@@ -100,7 +120,7 @@ form > div {
     color: rgba(235, 86, 86);
     text-align: center;
     position: absolute;
-    top: 20px;
+    top: -41px;
     padding: 10px;
     width: 320px;
     background-color: rgba(235, 86, 86, 0.06);
@@ -124,5 +144,33 @@ form input[type="submit"] {
     font-weight: 600;
     color: rgba(235, 86, 86);
     align-items: center;
+}
+
+form #modal {
+    background-color: rgba(235, 86, 86);
+    width: 370px;
+    border: 1px solid rgba(235, 86, 86);
+    border-radius: 3px;
+    font-size: 1.4em;
+    color: #fff;
+    line-height: 80px;
+    position: absolute;
+    top: 200px;
+    left: -30px;
+}
+
+div button {
+    width: 50px;
+    height: 24px;
+    align-items: center;
+    padding: 3px;
+    border-radius: 3px;
+    margin: 0 0 0 142px;
+    background-color: #fff;
+    border: 1px solid rgba(235, 86, 86);
+    color: rgba(235, 86, 86);
+    font-weight: 600;
+    position: absolute;
+    top: 65px;
 }
 </style>
