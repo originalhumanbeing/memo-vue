@@ -24,7 +24,7 @@
             <textarea class="memo" name="memo" id="memo" cols="30" rows="10" placeholder="새 메모를 작성하세요!"
                       ref="memo"
                       v-model="memo.content"
-                      v-on:keypress="findCursor"></textarea>
+                      v-on:keyup="findCursor"></textarea>
         </div>
     </div>
 </template>
