@@ -104,11 +104,18 @@ export default {
             this.user.nickname = '';
             this.user.connectionState.beforeLogin = true;
             this.user.currentFile = '';
+            this.user.token = '';
             this.memo.content = '';
         },
         showList() {
+            const myHeaders = {
+                "Content-Type": "application/json",
+                "Authorization":`${this.user.token}`
+            }
+
             fetch(`http://localhost:8080/memos/${this.user.nickname}`, {
-                method: 'get'
+                method: 'get',
+                headers: myHeaders
             }).then((res) => res.json()).then((data) => {
                 if (!data['body'] || data['body'].length === 0) return;
 
@@ -118,8 +125,14 @@ export default {
         },
         showMemo(e) {
             this.user.currentFile = e.target.innerText;
+            const myHeaders = {
+                "Content-Type": "application/json",
+                "Authorization":`${this.user.token}`
+            }
+
             fetch(`http://localhost:8080/memo/${this.user.nickname}/${this.user.currentFile}`, {
-                method: 'get'
+                method: 'get',
+                headers: myHeaders
             }).then((res) => res.json()).then((data) => {
                 this.memo.content = data['body'].content;
                 this.memo.cursorStart = data['body'].cursorStart;
@@ -139,8 +152,10 @@ export default {
             this.memo.cursorEnd = e.target.selectionEnd;
         },
         saveMemo() {
-            const myHeaders = new Headers();
-            myHeaders.append("Content-Type", "application/json");
+            const myHeaders = {
+                "Content-Type": "application/json",
+                "Authorization":`${this.user.token}`
+            }
 
             fetch(`http://localhost:8080/memo/${this.user.nickname}`, {
                 method: 'post',
@@ -158,8 +173,10 @@ export default {
             })
         },
         updateMemo() {
-            const myHeaders = new Headers();
-            myHeaders.append("Content-Type", "application/json");
+            const myHeaders = {
+                "Content-Type": "application/json",
+                "Authorization":`${this.user.token}`
+            }
 
             fetch(`http://localhost:8080/memo/${this.user.nickname}/${this.user.currentFile}`, {
                 method: 'put',
@@ -177,8 +194,14 @@ export default {
             })
         },
         deleteMemo() {
+            const myHeaders = {
+                "Content-Type": "application/json",
+                "Authorization":`${this.user.token}`
+            }
+
             fetch(`http://localhost:8080/memo/${this.user.nickname}/${this.user.currentFile}`, {
-                method:'delete'
+                method:'delete',
+                headers: myHeaders
             }).then(res => res.json()).then(data => {
                 window.alert(data.body);
             }).then(() => {
