@@ -106,6 +106,7 @@ export default {
             this.user.currentFile = '';
             this.user.token = '';
             this.memo.content = '';
+            this.list = [];
         },
         showList() {
             const myHeaders = {
