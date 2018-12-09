@@ -1,16 +1,6 @@
 <template>
     <div class="wrapper">
-        <div class="authFailMsg" v-if="user.connectionState.authFailMsgShow">{{ user.connectionState.authFailMsg }}</div>
-        <form id="auth" method="post" v-if="user.connectionState.beforeLogin">
-            <input type="text" id="id" name="id" placeholder="email@email.com" v-model="user.id">
-            <input type="password" id="pwd" name="pwd" placeholder="password" v-model="user.pwd">
-            <input type="submit" id="loginBtn" value="Log in" v-on:click="login">
-            <router-link to="/signup">Sign Up</router-link>
-        </form>
-        <div id="userNav" v-if="!user.connectionState.beforeLogin">
-            <p id="userNickname" v-if="!user.connectionState.beforeLogin"> {{ user.nickname + ' 님' }}</p>
-            <button id="logoutBtn" v-on:click="logout">Log out</button>
-        </div>
+        <Auth :onLoginSuccess="this.onLoginSuccess" :onLogoutSuccess="this.onLogoutSuccess"></Auth>
         <div class="notepad">
             <ul class="menu">
                 <li><button class="writeBtn" v-on:click="createMemo">새 메모</button></li>
@@ -19,7 +9,7 @@
                 <li><button class="deleteBtn" v-on:click="deleteMemo">삭제</button></li>
             </ul>
             <ul class="list">
-                <li  v-for="item in list" v-on:click="showMemo" v-bind:class="{ clicked: user.currentFile === item }">{{ item }}</li>
+                <li v-for="item in list" v-on:click="showMemo" :key="item" v-bind:class="{ clicked: user.currentFile === item }">{{ item }}</li>
             </ul>
             <textarea class="memo" name="memo" id="memo" cols="30" rows="10" placeholder="새 메모를 작성하세요!"
                       ref="memo"
@@ -30,83 +20,53 @@
 </template>
 
 <script>
+import Auth from './Auth';
+
 export default {
     name: 'Notepad',
-    props: {
-        msg: String
+    components: {
+        Auth
     },
     data() {
         return {
             user: {
-                connectionState: {
-                    beforeLogin: true,
-                    authFailMsg: '',
-                    authFailMsgShow: false
-                },
-                id: '',
                 nickname: '',
-                pwd: '',
-                token: '',
-                currentFile: ''
+                token: ''
             },
             memo: {
                 content: '',
                 cursorStart: 0,
-                cursorEnd: 0
+                cursorEnd: 0,
+                currentFile: ''
             },
             list: []
         }
     },
-    // mounted() {
-    //     this.$bus.$on('login', this.login);
-    // },
     methods: {
-        login(e) {
-            e.preventDefault();
-            // console.log('event 로 실행되었어!');
+        onLoginSuccess(data) {
+            if (!data['lastwork']) {
+                this.memo.currentFile = '';
+                this.memo.content = '';
+            } else {
+                this.memo.currentFile = data['lastwork'].title;
+                this.memo.content = data['lastwork'].content;
+                this.memo.cursorStart = data['lastwork'].cursorStart;
+                this.memo.cursorEnd = data['lastwork'].cursorEnd; 
+            }
 
-            const myHeaders = new Headers();
-            myHeaders.append("Content-Type", "application/json");
+            this.user.nickname = data['body'].nickname;
+            this.user.token = data['encodedToken'];
 
-            fetch(`http://localhost:8080/login`, {
-                method: 'post',
-                headers: myHeaders,
-                body: JSON.stringify({id: this.user.id, pwd: this.user.pwd})
-            }).then((res) => res.json()).then((data) => {
-                if (!data['body'] || !data['body'].isLogin) {
-                    this.user.connectionState.authFailMsgShow = true;
-                    this.user.connectionState.authFailMsg = data['body'];
-                    return;
-                }
-
-                if (!data['lastwork']) {
-                    this.user.currentFile = '';
-                    this.memo.content = '';
-                } else {
-                    this.user.currentFile = data['lastwork'].title;
-                    this.memo.content = data['lastwork'].content;
-                    this.memo.cursorStart = data['lastwork'].cursorStart;
-                    this.memo.cursorEnd = data['lastwork'].cursorEnd; 
-                }
-
-                this.$refs.memo.setSelectionRange(this.memo.cursorStart, this.memo.cursorEnd);
-                this.$refs.memo.focus();
-                this.user.nickname = data['body'].nickname;
-                this.user.token = data['encodedToken'];
-                this.showList();
-                this.user.connectionState.authFailMsgShow = false;
-                this.user.connectionState.beforeLogin = false;
-            })
+            this.$refs.memo.setSelectionRange(this.memo.cursorStart, this.memo.cursorEnd);
+            this.$refs.memo.focus();
+            this.showList();
         },
-        logout() {
-            this.user.id = '';
-            this.user.pwd = '';
-            this.user.nickname = '';
-            this.user.connectionState.beforeLogin = true;
-            this.user.currentFile = '';
-            this.user.token = '';
+        onLogoutSuccess() {
             this.memo.content = '';
+            this.memo.currentFile = '';
             this.list = [];
+            this.user.nickname = "";
+            this.user.token = "";
         },
         showList() {
             const myHeaders = {
@@ -303,41 +263,5 @@ button, a {
     border-radius: 5px;
     border: 1px solid #f6f8fa;
     background-color: #ffffff;
-}
-
-#auth {
-    margin: 0 5px 15px 5px;
-    border-bottom: 1px solid black;
-}
-
-#auth input {
-    padding: 5px 8px;
-    margin: 8px 3px;
-    font-size: 0.9em;
-    font-weight: 400;
-    border-radius: 5px;
-    border: 1px solid #f6f8fa;
-    background-color: #ffffff;
-}
-
-.authFailMsg {
-    margin: 5px;
-    padding: 0 8px;
-    color: darkred;
-}
-
-#userNav {
-    margin: 0 5px 15px 5px;
-    border-bottom: 1px solid black;
-}
-
-#userNav . {
-    padding: 5px 8px;
-    margin: 10px 3px;
-}
-
-#userNickname {
-    display: inline-block;
-    margin-left: 15px;
 }
 </style>
