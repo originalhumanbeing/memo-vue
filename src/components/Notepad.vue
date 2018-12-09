@@ -43,23 +43,32 @@ export default {
         }
     },
     methods: {
-        onLoginSuccess(data) {
-            if (!data['lastwork']) {
-                this.memo.currentFile = '';
-                this.memo.content = '';
-            } else {
-                this.memo.currentFile = data['lastwork'].title;
-                this.memo.content = data['lastwork'].content;
-                this.memo.cursorStart = data['lastwork'].cursorStart;
-                this.memo.cursorEnd = data['lastwork'].cursorEnd; 
+        onLoginSuccess(loginData) {
+            this.user.nickname = loginData.nickname;
+            this.user.token = loginData.token;
+
+            const myHeaders = {
+                "Content-Type": "application/json",
+                "Authorization":`${this.user.token}`
             }
+            fetch(`http://localhost:8080/initmemo/${this.user.nickname}`, {
+                method: 'get',
+                headers: myHeaders
+            }).then(res => res.json()).then(data => {
+                if (!data['lastWork']) {
+                    this.memo.currentFile = '';
+                    this.memo.content = '';
+                } else {
+                    this.memo.currentFile = data['lastWork'].title;
+                    this.memo.content = data['lastWork'].content;
+                    this.memo.cursorStart = data['lastWork'].cursorStart;
+                    this.memo.cursorEnd = data['lastWork'].cursorEnd; 
+                }
 
-            this.user.nickname = data['body'].nickname;
-            this.user.token = data['encodedToken'];
-
-            this.$refs.memo.setSelectionRange(this.memo.cursorStart, this.memo.cursorEnd);
-            this.$refs.memo.focus();
-            this.showList();
+                this.$refs.memo.setSelectionRange(this.memo.cursorStart, this.memo.cursorEnd);
+                this.$refs.memo.focus();
+                this.showList();
+            })
         },
         onLogoutSuccess() {
             this.memo.content = '';

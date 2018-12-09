@@ -36,6 +36,19 @@ export default {
             }
         }
     },
+    created() {
+        const nickname = localStorage.getItem('nickname');
+        const token = localStorage.getItem('token');
+
+        if (nickname && token) {
+            const loginData = {nickname, token};
+            this.user.nickname = loginData.nickname;
+            this.user.token = loginData.token;
+            this.user.connectionState.authFailMsgShow = false;
+            this.user.connectionState.beforeLogin = false;
+            this.onLoginSuccess(loginData);
+        }
+    },
     methods: {
         login(e) {
             e.preventDefault();
@@ -47,18 +60,21 @@ export default {
                 method: 'post',
                 headers: myHeaders,
                 body: JSON.stringify({id: this.user.email, pwd: this.user.pwd})
-            }).then((res) => res.json()).then((data) => {
-                if (!data['body'] || !data['body'].isLogin) {
+            }).then((res) => res.json()).then((loginData) => {
+                if (!loginData.token || !loginData.nickname) {
                     this.user.connectionState.authFailMsgShow = true;
-                    this.user.connectionState.authFailMsg = data['body'];
+                    this.user.connectionState.authFailMsg = loginData.msg;
                     return;
                 }
                 this.user.pwd = "";
-                this.user.nickname = data['body'].nickname;
-                this.user.token = data['encodedToken'];
+                this.user.nickname = loginData.nickname;
+                this.user.token = loginData.token;
                 this.user.connectionState.authFailMsgShow = false;
                 this.user.connectionState.beforeLogin = false;
-                this.onLoginSuccess(data);
+                this.onLoginSuccess(loginData);
+
+                localStorage.setItem('nickname', this.user.nickname);
+                localStorage.setItem('token', this.user.token);
             })
         },
         logout() {
@@ -68,6 +84,9 @@ export default {
             this.user.connectionState.beforeLogin = true;
             this.user.token = '';
             this.onLogoutSuccess();
+
+            localStorage.setItem('nickname', '');
+            localStorage.setItem('token', '');
         }
     }
 }
