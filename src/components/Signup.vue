@@ -18,6 +18,7 @@
 
 <script>
 import router from '../router/index';
+import restService from '../services/restService';
 
 export default {
     name: 'Signup',
@@ -36,15 +37,7 @@ export default {
     methods: {
         signup(e) {
             e.preventDefault();
-            
-            const myHeaders = new Headers();
-            myHeaders.append("Content-Type", "application/json");
-
-            fetch(`http://localhost:8080/signup`, {
-                method: 'post',
-                headers: myHeaders,
-                body: JSON.stringify({ nickname: this.nickname, email: this.email, pwd: this.pwd, checkpwd: this.checkpwd })
-            }).then(res => res.json()).then(data => {
+            restService.signup(this.nickname, this.email, this.pwd, this.checkpwd).then(res => res.json()).then(data => {
                 if (!data.success) {
                     this.signupMsg = data.body;
                     this.signupMsgShow = true;

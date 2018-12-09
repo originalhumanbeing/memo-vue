@@ -15,6 +15,8 @@
 </template>
 
 <script>
+import restService from '../services/restService';
+
 export default {
     name: 'Auth',
     props : {
@@ -52,15 +54,7 @@ export default {
     methods: {
         login(e) {
             e.preventDefault();
-
-            const myHeaders = new Headers();
-            myHeaders.append("Content-Type", "application/json");
-
-            fetch(`http://localhost:8080/login`, {
-                method: 'post',
-                headers: myHeaders,
-                body: JSON.stringify({id: this.user.email, pwd: this.user.pwd})
-            }).then((res) => res.json()).then((loginData) => {
+            restService.login(this.user.email, this.user.pwd).then((res) => res.json()).then((loginData) => {
                 if (!loginData.token || !loginData.nickname) {
                     this.user.connectionState.authFailMsgShow = true;
                     this.user.connectionState.authFailMsg = loginData.msg;

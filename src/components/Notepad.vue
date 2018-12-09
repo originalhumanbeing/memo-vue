@@ -21,6 +21,7 @@
 
 <script>
 import Auth from './Auth';
+import restService from '../services/restService';
 
 export default {
     name: 'Notepad',
@@ -46,15 +47,8 @@ export default {
         onLoginSuccess(loginData) {
             this.user.nickname = loginData.nickname;
             this.user.token = loginData.token;
-
-            const myHeaders = {
-                "Content-Type": "application/json",
-                "Authorization":`${this.user.token}`
-            }
-            fetch(`http://localhost:8080/initmemo/${this.user.nickname}`, {
-                method: 'get',
-                headers: myHeaders
-            }).then(res => res.json()).then(data => {
+            
+            restService.initMemo(this.user.token, this.user.nickname).then(res => res.json()).then(data => {
                 if (!data['lastWork']) {
                     this.memo.currentFile = '';
                     this.memo.content = '';
@@ -78,15 +72,7 @@ export default {
             this.user.token = "";
         },
         showList() {
-            const myHeaders = {
-                "Content-Type": "application/json",
-                "Authorization":`${this.user.token}`
-            }
-
-            fetch(`http://localhost:8080/memos/${this.user.nickname}`, {
-                method: 'get',
-                headers: myHeaders
-            }).then((res) => res.json()).then((data) => {
+            restService.fetchMemos(this.user.token, this.user.nickname).then((res) => res.json()).then((data) => {
                 if (!data['body'] || data['body'].length === 0) return;
 
                 data['body'].sort((a, b) => a - b);
@@ -94,16 +80,8 @@ export default {
             })
         },
         showMemo(e) {
-            this.user.currentFile = e.target.innerText;
-            const myHeaders = {
-                "Content-Type": "application/json",
-                "Authorization":`${this.user.token}`
-            }
-
-            fetch(`http://localhost:8080/memo/${this.user.nickname}/${this.user.currentFile}`, {
-                method: 'get',
-                headers: myHeaders
-            }).then((res) => res.json()).then((data) => {
+            this.memo.currentFile = e.target.innerText;
+            restService.fetchMemo(this.user.token, this.user.nickname, this.memo.currentFile).then((res) => res.json()).then((data) => {
                 this.memo.content = data['body'].content;
                 this.memo.cursorStart = data['body'].cursorStart;
                 this.memo.cursorEnd = data['body'].cursorEnd;
@@ -122,57 +100,21 @@ export default {
             this.memo.cursorEnd = e.target.selectionEnd;
         },
         saveMemo() {
-            const myHeaders = {
-                "Content-Type": "application/json",
-                "Authorization":`${this.user.token}`
-            }
-
-            fetch(`http://localhost:8080/memo/${this.user.nickname}`, {
-                method: 'post',
-                headers: myHeaders,
-                body: JSON.stringify({
-                    memo: this.memo.content,
-                    user: this.user.nickname,
-                    cursorStart: this.memo.cursorStart,
-                    cursorEnd: this.memo.cursorEnd
-                })
-            }).then(res => res.json()).then(data => {
-                this.user.currentFile = data.body.title;
+            restService.saveMemo(this.user.token, this.user.nickname, this.memo.content, this.memo.cursorStart, this.memo.cursorEnd).then(res => res.json()).then(data => {
+                this.memo.currentFile = data.body.title;
                 this.memo.content = data.body.content;
                 this.showList();
             })
         },
         updateMemo() {
-            const myHeaders = {
-                "Content-Type": "application/json",
-                "Authorization":`${this.user.token}`
-            }
-
-            fetch(`http://localhost:8080/memo/${this.user.nickname}/${this.user.currentFile}`, {
-                method: 'put',
-                headers: myHeaders,
-                body: JSON.stringify({
-                    memo: this.memo.content,
-                    user: this.user.nickname,
-                    cursorStart: this.memo.cursorStart,
-                    cursorEnd: this.memo.cursorEnd
-                })
-            }).then(res => res.json()).then(data => {
-                this.user.currentFile = data.body.title;
+            restService.updateMemo(this.user.token, this.user.nickname, this.memo.currentFile, this.memo.content, this.memo.cursorStart, this.memo.cursorEnd).then(res => res.json()).then(data => {
+                this.memo.currentFile = data.body.title;
                 this.memo.content = data.body.content;
                 this.showList();
             })
         },
         deleteMemo() {
-            const myHeaders = {
-                "Content-Type": "application/json",
-                "Authorization":`${this.user.token}`
-            }
-
-            fetch(`http://localhost:8080/memo/${this.user.nickname}/${this.user.currentFile}`, {
-                method:'delete',
-                headers: myHeaders
-            }).then(res => res.json()).then(data => {
+            restService.deleteMemo(this.user.token, this.user.nickname, this.memo.currentFile).then(res => res.json()).then(data => {
                 window.alert(data.body);
             }).then(() => {
                 this.showList();
