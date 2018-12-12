@@ -7,7 +7,7 @@
                 <div>EMAIL</div><input type="text" name="email" placeholder="Enter your email address" v-model="email">
                 <div>PASSWORD</div><input type="password" name="pwd" placeholder="Enter your password" v-model="pwd">
                 <div>PASSWORD AGAIN</div><input type="password" name="checkpwd" placeholder="Enter your password once more" v-model="checkpwd">
-                <input type="submit" value="Sign me up!" v-on:click="signup">
+                <input type="submit" value="Sign me up!" v-on:click="signup" v-bind:disabled="disabled ? true : false">
         </fieldset>
         <div id="modal" v-if="signupSuccessMsgShow">
             {{ signupSuccessMsg }}
@@ -31,12 +31,14 @@ export default {
             signupMsg: '',
             signupMsgShow: false,
             signupSuccessMsg: '회원 가입이 완료되었습니다',
-            signupSuccessMsgShow: false
+            signupSuccessMsgShow: false,
+            disabled: false
         }
     },
     methods: {
         signup(e) {
             e.preventDefault();
+            this.disabled = true;
             restService.signup(this.nickname, this.email, this.pwd, this.checkpwd).then(res => res.json()).then(data => {
                 if (!data.success) {
                     this.signupMsg = data.body;
