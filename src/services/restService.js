@@ -16,7 +16,8 @@ export default {
         const myHeaders = {
             "Content-Type": "application/json",
             "Authorization": `${token}`
-        }
+        };
+
         return fetch(`${API_HOST}/initmemo/${nickname}`, {
             method: 'get',
             headers: myHeaders
@@ -38,7 +39,7 @@ export default {
         const myHeaders = {
             "Content-Type": "application/json",
             "Authorization": `${token}`
-        }
+        };
 
         return fetch(`${API_HOST}/memos/${nickname}`, {
             method: 'get',
@@ -50,7 +51,7 @@ export default {
         const myHeaders = {
             "Content-Type": "application/json",
             "Authorization": `${token}`
-        }
+        };
 
         return fetch(`${API_HOST}/memo/${nickname}/${currentFile}`, {
             method: 'get',
@@ -58,34 +59,17 @@ export default {
         })
     },
 
-    saveMemo(token, nickname, content, cursorStart, cursorEnd) {
+    saveMemo(token, nickname, currentFile, content, cursorStart, cursorEnd) {
         const myHeaders = {
             "Content-Type": "application/json",
             "Authorization": `${token}`
-        }
+        };
 
         return fetch(`${API_HOST}/memo/${nickname}`, {
             method: 'post',
             headers: myHeaders,
             body: JSON.stringify({
-                memo: content,
-                user: nickname,
-                cursorStart: cursorStart,
-                cursorEnd: cursorEnd
-            })
-        })
-    },
-
-    updateMemo(token, nickname, currentFile, content, cursorStart, cursorEnd) {
-        const myHeaders = {
-            "Content-Type": "application/json",
-            "Authorization": `${token}`
-        }
-
-        return fetch(`${API_HOST}/memo/${nickname}/${currentFile}`, {
-            method: 'put',
-            headers: myHeaders,
-            body: JSON.stringify({
+                memoId: currentFile,
                 memo: content,
                 user: nickname,
                 cursorStart: cursorStart,
@@ -98,7 +82,7 @@ export default {
         const myHeaders = {
             "Content-Type": "application/json",
             "Authorization": `${token}`
-        }
+        };
 
         return fetch(`${API_HOST}/memo/${nickname}/${currentFile}`, {
             method: 'delete',

@@ -9,6 +9,7 @@
     "deploy:s3": "npm run build && aws s3 cp dist/ s3://memomemo-www --recursive"
   },
   "dependencies": {
+    "moment-timezone": "^0.5.23",
     "vue": "^2.5.17",
     "vue-router": "^3.0.2"
   },
