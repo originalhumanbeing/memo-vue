@@ -85,11 +85,9 @@
                     if (!data['body'] || data['body'].length === 0) return;
 
                     let memos = data['body'];
-
                     memos.sort((left, right) => {
                         return right['updatedAt'].localeCompare(left['updatedAt']);
                     });
-
                     this.list = memos;
                 })
             },

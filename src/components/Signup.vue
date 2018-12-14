@@ -43,6 +43,7 @@ export default {
                 if (!data.success) {
                     this.signupMsg = data.body;
                     this.signupMsgShow = true;
+                    this.disabled = false;
                     return;
                 }
 

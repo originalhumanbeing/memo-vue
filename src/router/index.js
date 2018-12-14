@@ -3,7 +3,7 @@ import Router from 'vue-router'
 import Notepad from '@/components/Notepad'
 import Signup from '@/components/Signup'
 
-Vue.use(Router)
+Vue.use(Router);
 
 let router = new Router({
   routes: [
@@ -18,6 +18,6 @@ let router = new Router({
       component: Signup
     },
   ]
-})
+});
 
 export default router
