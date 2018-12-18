@@ -82,7 +82,7 @@
             },
             showList() {
                 restService.fetchMemos(this.user.token, this.user.nickname).then((res) => res.json()).then((data) => {
-                    if (!data['body'] || data['body'].length === 0) return;
+                    if (!data['body'] || data['body'].length === 0) return this.list = [];
 
                     let memos = data['body'];
                     memos.sort((left, right) => {
@@ -126,9 +126,9 @@
                 restService.deleteMemo(this.user.token, this.user.nickname, this.memo.currentFile).then(res => res.json()).then(data => {
                     window.alert(data.body);
                 }).then(() => {
-                    this.showList();
                     this.memo.currentFile = '';
                     this.memo.content = '';
+                    this.showList();
                 })
             }
         }
