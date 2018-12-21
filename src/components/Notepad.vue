@@ -82,9 +82,9 @@
             },
             showList() {
                 restService.fetchMemos(this.user.token, this.user.nickname).then((res) => res.json()).then((data) => {
-                    if (!data['body'] || data['body'].length === 0) return this.list = [];
+                    if (!data.memos || data.memos.length === 0) return this.list = [];
 
-                    let memos = data['body'];
+                    let memos = data.memos;
                     memos.sort((left, right) => {
                         return right['updatedAt'].localeCompare(left['updatedAt']);
                     });

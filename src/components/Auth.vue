@@ -57,7 +57,7 @@ export default {
             restService.login(this.user.email, this.user.pwd).then((res) => res.json()).then((loginData) => {
                 if (!loginData.token || !loginData.nickname) {
                     this.user.connectionState.authFailMsgShow = true;
-                    this.user.connectionState.authFailMsg = loginData.msg;
+                    this.user.connectionState.authFailMsg = loginData.body;
                     return;
                 }
                 this.user.pwd = "";

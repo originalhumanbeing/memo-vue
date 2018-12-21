@@ -70,7 +70,7 @@ export default {
             headers: myHeaders,
             body: JSON.stringify({
                 memoId: currentFile,
-                memo: content,
+                content: content,
                 user: nickname,
                 cursorStart: cursorStart,
                 cursorEnd: cursorEnd

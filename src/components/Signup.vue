@@ -4,7 +4,7 @@
         <fieldset>
             <legend>Sign up</legend>
                 <div>NICKNAME</div><input type="text" name="nickname" placeholder="What should we call you?" v-model="nickname">
-                <div>EMAIL</div><input type="text" name="email" placeholder="Enter your email address" v-model="email">
+                <div>EMAIL</div><input type="email" name="email" placeholder="Enter your email address!!" v-model="email">
                 <div>PASSWORD</div><input type="password" name="pwd" placeholder="Enter your password" v-model="pwd">
                 <div>PASSWORD AGAIN</div><input type="password" name="checkpwd" placeholder="Enter your password once more" v-model="checkpwd">
                 <input type="submit" value="Sign me up!" v-on:click="signup" v-bind:disabled="disabled ? true : false">
@@ -30,7 +30,7 @@ export default {
             checkpwd: '',
             signupMsg: '',
             signupMsgShow: false,
-            signupSuccessMsg: '회원 가입이 완료되었습니다',
+            signupSuccessMsg: '',
             signupSuccessMsgShow: false,
             disabled: false
         }
@@ -48,6 +48,7 @@ export default {
                 }
 
                 // 성공시 메인 페이지로 이동
+                this.signupSuccessMsg = data.msg;
                 this.signupSuccessMsgShow = true;
 
                 // 자동 로그인 (로그인하는 event emit)
@@ -113,14 +114,14 @@ form div {
 form > div {
     font-size: 1.2em;
     font-weight: 600;
-    color: rgba(235, 86, 86);
+    color: rgb(235, 86, 86);
     text-align: center;
     position: absolute;
     top: -41px;
     padding: 10px;
     width: 320px;
     background-color: rgba(235, 86, 86, 0.06);
-    border: 1px solid rgba(235, 86, 86);
+    border: 1px solid rgb(235, 86, 86);
     border-radius: 3px;
 }
 
@@ -135,17 +136,22 @@ form input {
 
 form input[type="submit"] {
     background-color: rgba(235, 86, 86, 0.06);
-    border: 1px solid rgba(235, 86, 86);
+    border: 1px solid rgb(235, 86, 86);
     font-size: 1.2em;
     font-weight: 600;
-    color: rgba(235, 86, 86);
+    color: rgb(235, 86, 86);
     align-items: center;
 }
 
+form input[type="submit"]:hover {
+    background-color: rgb(235, 86, 86);
+    color: #fff;
+}
+
 form #modal {
-    background-color: rgba(235, 86, 86);
+    background-color: rgb(235, 86, 86);
     width: 370px;
-    border: 1px solid rgba(235, 86, 86);
+    border: 1px solid rgb(235, 86, 86);
     border-radius: 3px;
     font-size: 1.4em;
     color: #fff;
@@ -163,8 +169,8 @@ div button {
     border-radius: 3px;
     margin: 0 0 0 142px;
     background-color: #fff;
-    border: 1px solid rgba(235, 86, 86);
-    color: rgba(235, 86, 86);
+    border: 1px solid rgb(235, 86, 86);
+    color: rgb(235, 86, 86);
     font-weight: 600;
     position: absolute;
     top: 65px;
