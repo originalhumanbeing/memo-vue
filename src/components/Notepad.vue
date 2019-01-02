@@ -52,6 +52,9 @@
                 list: []
             }
         },
+        updated() {
+            // TODO: update될 때마다 save memo
+        },
         methods: {
             onLoginSuccess(loginData) {
                 this.user.nickname = loginData.nickname;
