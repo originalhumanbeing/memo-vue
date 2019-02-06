@@ -5,13 +5,8 @@
 </template>
 
 <script>
-import Notepad from './components/Notepad';
-
 export default {
-    name: 'app',
-    components: {
-        Notepad
-    }
+    name: 'app'
 }
 </script>
 
